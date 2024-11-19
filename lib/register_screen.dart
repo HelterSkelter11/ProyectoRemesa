@@ -1,26 +1,28 @@
 import 'package:flutter/material.dart';
-import 'register_screen.dart'; 
 
-class LoginScreen extends StatelessWidget {
+class RegisterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
         children: [
-       
+          
           Container(
-            color: Color(0xFF71C3A7),
+            color: Color(0xFF71C3A7), 
             height: 100,
           ),
           SizedBox(height: 20),
-          // Título
+        
           Text(
-            'Bienvenido',
-            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+            'Crea tu Cuenta',
+            style: TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          SizedBox(height: 40),
-         
+          SizedBox(height: 20),
+       
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
@@ -29,7 +31,14 @@ class LoginScreen extends StatelessWidget {
                 Text('Usuario'),
                 TextField(
                   decoration: InputDecoration(
-                    hintText: 'Usuario',
+                    hintText: 'Nombre',
+                  ),
+                ),
+                SizedBox(height: 20),
+                Text('Correo'),
+                TextField(
+                  decoration: InputDecoration(
+                    hintText: 'ejemplo@gmail.com',
                   ),
                 ),
                 SizedBox(height: 20),
@@ -40,19 +49,27 @@ class LoginScreen extends StatelessWidget {
                     hintText: 'Contraseña',
                   ),
                 ),
+                SizedBox(height: 20),
+                Text('Confirmar Contraseña'),
+                TextField(
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    hintText: 'Confirmar contraseña',
+                  ),
+                ),
                 SizedBox(height: 30),
-              
+           
                 Center(
                   child: ElevatedButton(
                     onPressed: () {
-                     
+                   
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF71C3A7), 
+                      backgroundColor: Color(0xFF71C3A7),
                       padding: EdgeInsets.symmetric(horizontal: 80, vertical: 15),
                     ),
                     child: Text(
-                      'Iniciar Sesión',
+                      'Crear Cuenta',
                       style: TextStyle(fontSize: 16),
                     ),
                   ),
@@ -61,43 +78,26 @@ class LoginScreen extends StatelessWidget {
                 Center(
                   child: TextButton(
                     onPressed: () {
-                      
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => RegisterScreen()),
-                      );
+                      Navigator.pop(context); 
                     },
-                    child: Text('+ Crear Cuenta'),
+                    child: Text('Iniciar Sesión'),
                   ),
                 ),
               ],
             ),
           ),
-          SizedBox(height: 40),
-       
+          
           Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/LoginPic.jpg'), 
-                  fit: BoxFit.contain,
-                ),
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                color: Color(0xFF71C3A7),
+                height: 50,
               ),
             ),
-          ),
-         
-          Container(
-            color: Color(0xFF71C3A7), 
-            height: 50,
           ),
         ],
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: LoginScreen(),
-  ));
 }
