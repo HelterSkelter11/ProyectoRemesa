@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'register_screen.dart'; 
+import 'DashboardScreen.dart'; // Asegúrate de importar DashboardScreen
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
@@ -10,7 +11,6 @@ class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   @override
-  
   Widget build(BuildContext context) {
     final usernameController = TextEditingController();
     final passwordController = TextEditingController();
@@ -40,9 +40,10 @@ class LoginScreen extends StatelessWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Inicio de sesión exitoso')),
           );
+          // Redirige a DashboardScreen
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const RegisterScreen()),
+            MaterialPageRoute(builder: (context) => const DashboardScreen()),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
