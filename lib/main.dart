@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'register_screen.dart'; 
-import 'DashboardScreen.dart'; // Asegúrate de importar DashboardScreen
+import 'DashboardScreen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
