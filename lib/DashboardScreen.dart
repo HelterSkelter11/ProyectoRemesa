@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'EnviarRemesaScreen.dart'; 
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -61,7 +62,14 @@ class DashboardScreen extends StatelessWidget {
                   Row(
                     children: [
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EnviarRemesaScreen(),
+                            ),
+                          );
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.teal,
                           foregroundColor: Colors.black,
@@ -70,7 +78,7 @@ class DashboardScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: Text('Generar QR'),
+                        child: Text('Enviar Remesa'),
                       ),
                       SizedBox(width: 16),
                       ElevatedButton(
@@ -160,7 +168,14 @@ class DashboardScreen extends StatelessWidget {
                 children: [
                   IconButton(
                     icon: Icon(Icons.send, color: Colors.white),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EnviarRemesaScreen(),
+                        ),
+                      );
+                    },
                   ),
                   IconButton(
                     icon: Icon(Icons.home, color: Colors.white),
