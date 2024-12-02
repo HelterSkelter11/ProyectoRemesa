@@ -12,7 +12,7 @@ class User {
       .count();
 
   if (response.data.isEmpty == 0) {
-    throw Exception('Error al obtener transacciones: ${response}');
+    throw Exception('Error al obtener transacciones: $response');
   }
 
   return response.data;

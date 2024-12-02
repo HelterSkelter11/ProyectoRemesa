@@ -5,7 +5,6 @@ import 'package:crypto/crypto.dart';
 
 class AuthApi {
   final supabase = Supabase.instance.client;
-  //final _storage = FlutterSecureStorage();
 
   Future<bool> login(String username, String password) async {
     try {
@@ -18,7 +17,6 @@ class AuthApi {
           .maybeSingle();
 
       if (response != null) {
-        //await _storage.write(key: 'auth_token', value: response.data[0]['token']);
         return true;
       }
     } catch (e) {
@@ -28,6 +26,5 @@ class AuthApi {
   }
 
   Future<void> logout() async {
-    //await _storage.delete(key: 'auth_token');
   }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class EnviarRemesaScreen extends StatefulWidget {
+  const EnviarRemesaScreen({super.key});
+
   @override
   _EnviarRemesaScreenState createState() => _EnviarRemesaScreenState();
 }
