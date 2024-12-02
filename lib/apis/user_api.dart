@@ -45,7 +45,8 @@ class UserApi {
 
           final transaccion_id = await supabase
               .from('historial')
-              .select('*, transaccion:*')
+              .select(
+                  'transaccion(*), hecho_en, direccion_salida, direccion_entrada')
               .or('direccion_salida.eq.$direccion,direccion_entrada.eq.$direccion')
               .order('hecho_en', ascending: false);
 
@@ -62,7 +63,12 @@ class UserApi {
     return null;
   }
 
-  Future<void> agregarTransaccion({ required String direccionDestino, required double monto, required String stablecoin, required String descripcion, required bool entrada}) async {
+  Future<void> agregarTransaccion(
+      {required String direccionDestino,
+      required double monto,
+      required String stablecoin,
+      required String descripcion,
+      required bool entrada}) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final userId = prefs.getInt('user_id');
@@ -97,13 +103,13 @@ class UserApi {
             'direccion_salida': direccionSalida,
             'direccion_entrada': direccionDestino,
             'metodo_conversion': 'manual', //no se que poner aqui xd
-          }).select();
+          }).select('transaccion_id');
 
           if (response.isEmpty) {
             throw Exception('Error al crear la transacción: ${response}');
           }
 
-          final transaccionId = response[0]['id'];
+          final transaccionId = response;
           await supabase.from('historial').insert([
             {
               'transaccion_id': transaccionId,

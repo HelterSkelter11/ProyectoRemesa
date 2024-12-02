@@ -46,6 +46,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final transacciones = await userApi.getTransactionsForUser();
 
     if (transacciones != null) {
+      for (var transaccion in transacciones) {
+    print('Transacción: $transaccion');
+  }
       setState(() {
         recentTransactions = transacciones;
       });
@@ -168,13 +171,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 16),
                   if (recentTransactions.isNotEmpty) ...[
                     ListView.builder(
-                      shrinkWrap:
-                          true,
-                      physics:
-                          NeverScrollableScrollPhysics(),
-                      itemCount: recentTransactions
-                          .take(3)
-                          .length,
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: recentTransactions.take(3).length,
                       itemBuilder: (context, index) {
                         final transaccion = recentTransactions[index];
                         final descripcion = transaccion['transaccion']
@@ -182,8 +181,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             'Descripción no disponible';
                         final monto =
                             transaccion['transaccion']['monto'] ?? 0.0;
-                        final fecha = transaccion['historial']['hecho_en'] ??
-                            'Fecha no disponible';
+                        final fecha = (transaccion['historial'] != null &&
+                                transaccion['historial']['hecho_en'] != null)
+                            ? transaccion['historial']['hecho_en']
+                            : 'Fecha no disponible';
 
                         return ListTile(
                           contentPadding: EdgeInsets.zero,
