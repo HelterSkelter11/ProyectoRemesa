@@ -1,8 +1,58 @@
 import 'package:flutter/material.dart';
-import 'EnviarRemesaScreen.dart'; 
+import 'EnviarRemesaScreen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'apis/user_api.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  _DashboardScreenState createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  final supabase = Supabase.instance.client;
+  String username = '';
+  double balance = 0.0;
+  List<Map<String, dynamic>> recentTransactions = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+    _loadTransacciones();
+  }
+
+  Future<void> _loadUserData() async {
+    final userApi = UserApi();
+    final userInfo = await userApi.getUserById();
+
+    print(userInfo);
+    if (userInfo != null) {
+      userInfo.forEach((key, value) {
+        print('$key: $value, type: ${value.runtimeType}');
+      });
+      setState(() {
+        username = userInfo['username'] ?? 'No Disponible';
+        balance = double.tryParse(userInfo['balance'].toString()) ?? 0.0;
+      });
+    } else {
+      print('no se pudo cargar los datos del usuario');
+    }
+  }
+
+  Future<void> _loadTransacciones() async {
+    final userApi = UserApi();
+    final transacciones = await userApi.getTransactionsForUser();
+
+    if (transacciones != null) {
+      setState(() {
+        recentTransactions = transacciones;
+      });
+    } else {
+      print('no se pudo cargar las transacciones del usuario');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,14 +69,14 @@ class DashboardScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Alberto',
-                    style: TextStyle(
+                    username.isEmpty ? 'Cargando...' : username,
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
                   ),
-                  Icon(
+                  const Icon(
                     Icons.account_circle,
                     size: 32,
                     color: Colors.black,
@@ -41,7 +91,7 @@ class DashboardScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Balance:',
                     style: TextStyle(
                       fontSize: 20,
@@ -49,16 +99,16 @@ class DashboardScreen extends StatelessWidget {
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
-                    '5,400.00 Lps',
-                    style: TextStyle(
+                    '${balance.toStringAsFixed(2)} Lps',
+                    style: const TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
                       color: Colors.teal,
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Row(
                     children: [
                       ElevatedButton(
@@ -66,32 +116,34 @@ class DashboardScreen extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => EnviarRemesaScreen(),
+                              builder: (context) => const EnviarRemesaScreen(),
                             ),
                           );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.teal,
                           foregroundColor: Colors.black,
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 10),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: Text('Enviar Remesa'),
+                        child: const Text('Enviar Remesa'),
                       ),
-                      SizedBox(width: 16),
+                      const SizedBox(width: 16),
                       ElevatedButton(
                         onPressed: () {},
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.teal,
                           foregroundColor: Colors.black,
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 10),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: Text('Agregar Fondos'),
+                        child: const Text('Agregar Fondos'),
                       ),
                     ],
                   ),
@@ -105,7 +157,7 @@ class DashboardScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Reciente:',
                     style: TextStyle(
                       fontSize: 20,
@@ -113,51 +165,82 @@ class DashboardScreen extends StatelessWidget {
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(height: 16),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: Icon(
-                      Icons.history,
-                      color: Colors.teal,
-                      size: 32,
+                  const SizedBox(height: 16),
+                  if (recentTransactions.isNotEmpty) ...[
+                    ListView.builder(
+                      shrinkWrap:
+                          true,
+                      physics:
+                          NeverScrollableScrollPhysics(),
+                      itemCount: recentTransactions
+                          .take(3)
+                          .length,
+                      itemBuilder: (context, index) {
+                        final transaccion = recentTransactions[index];
+                        final descripcion = transaccion['transaccion']
+                                ['descripcion'] ??
+                            'Descripción no disponible';
+                        final monto =
+                            transaccion['transaccion']['monto'] ?? 0.0;
+                        final fecha = transaccion['historial']['hecho_en'] ??
+                            'Fecha no disponible';
+
+                        return ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: const Icon(
+                            Icons.history,
+                            color: Colors.teal,
+                            size: 32,
+                          ),
+                          title: Text(
+                            descripcion,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          subtitle: Text(
+                            'Lps. $monto\n$fecha',
+                            style: const TextStyle(
+                              color: Colors.white70,
+                            ),
+                          ),
+                          trailing: const Icon(
+                            Icons.arrow_forward_ios,
+                            color: Colors.white70,
+                            size: 16,
+                          ),
+                        );
+                      },
                     ),
-                    title: Text(
-                      'Remesa del mes',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    subtitle: Text(
-                      'Lps. 5,000.00\nJun 10, 2024',
+                  ] else ...[
+                    const Text(
+                      'No se han encontrado transacciones recientes.',
                       style: TextStyle(
                         color: Colors.white70,
+                        fontStyle: FontStyle.italic,
                       ),
                     ),
-                    trailing: Icon(
-                      Icons.arrow_forward_ios,
-                      color: Colors.white70,
-                      size: 16,
-                    ),
-                  ),
-                  SizedBox(height: 16),
+                  ],
+                  const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.teal,
                       foregroundColor: Colors.black,
-                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: Text('Historial'),
+                    child: const Text('Historial'),
                   ),
                 ],
               ),
             ),
 
-            Spacer(),
+            const Spacer(),
 
             // Bottom Navigation
             Container(
@@ -167,22 +250,22 @@ class DashboardScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.send, color: Colors.white),
+                    icon: const Icon(Icons.send, color: Colors.white),
                     onPressed: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => EnviarRemesaScreen(),
+                          builder: (context) => const EnviarRemesaScreen(),
                         ),
                       );
                     },
                   ),
                   IconButton(
-                    icon: Icon(Icons.home, color: Colors.white),
+                    icon: const Icon(Icons.home, color: Colors.white),
                     onPressed: () {},
                   ),
                   IconButton(
-                    icon: Icon(Icons.settings, color: Colors.white),
+                    icon: const Icon(Icons.settings, color: Colors.white),
                     onPressed: () {},
                   ),
                 ],

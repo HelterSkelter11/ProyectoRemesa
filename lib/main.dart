@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'register_screen.dart'; 
 import 'DashboardScreen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'dart:convert';
-import 'package:crypto/crypto.dart';
+import 'apis/auth_api.dart';
 
 final supabase = Supabase.instance.client;
 
@@ -14,6 +13,7 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final usernameController = TextEditingController();
     final passwordController = TextEditingController();
+    final authApi = AuthApi();
 
     Future<void> login(BuildContext context) async {
       final username = usernameController.text.trim();
@@ -26,18 +26,10 @@ class LoginScreen extends StatelessWidget {
         return;
       }
 
-      final hashedPassword = sha256.convert(utf8.encode(password)).toString();
+      final funco = await authApi.login(username, password);
 
-      try {
-        final response = await supabase
-            .from('user')
-            .select('*')
-            .eq('username', username)
-            .eq('password', hashedPassword)
-            .maybeSingle(); 
-
-        if (response != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
+      if(funco){
+        ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Inicio de sesión exitoso')),
           );
           // Redirige a DashboardScreen
@@ -45,15 +37,10 @@ class LoginScreen extends StatelessWidget {
             context,
             MaterialPageRoute(builder: (context) => const DashboardScreen()),
           );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Usuario o contraseña incorrectos')),
           );
-        }
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al iniciar sesión: $e')),
-        );
       }
     }
 

@@ -47,7 +47,7 @@ class RegisterScreen extends StatelessWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Usuario creado con éxito')),
           );
-          Navigator.pop(context); //Aqui posiblemente emviarlo a el homepage
+          Navigator.pop(context);
         }
       } on PostgrestException catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
