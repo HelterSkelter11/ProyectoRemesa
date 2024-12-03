@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'EnviarRemesaScreen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'apis/user_api.dart';
+import 'package:intl/intl.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -47,8 +48,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     if (transacciones != null) {
       for (var transaccion in transacciones) {
-    print('Transacción: $transaccion');
-  }
+        print('Transacción: $transaccion');
+      }
       setState(() {
         recentTransactions = transacciones;
       });
@@ -172,7 +173,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   if (recentTransactions.isNotEmpty) ...[
                     ListView.builder(
                       shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(),
                       itemCount: recentTransactions.take(3).length,
                       itemBuilder: (context, index) {
                         final transaccion = recentTransactions[index];
@@ -181,9 +182,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             'Descripción no disponible';
                         final monto =
                             transaccion['transaccion']['monto'] ?? 0.0;
-                        final fecha = (transaccion['historial'] != null &&
-                                transaccion['historial']['hecho_en'] != null)
-                            ? transaccion['historial']['hecho_en']
+                        final Rawfecha = transaccion['hecho_en'];
+                        final fecha = Rawfecha != null
+                            ? DateFormat('dd/MM/yyyy hh:mm a')
+                                .format(DateTime.parse(Rawfecha).toLocal())
                             : 'Fecha no disponible';
 
                         return ListTile(

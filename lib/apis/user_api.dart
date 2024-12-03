@@ -43,14 +43,14 @@ class UserApi {
         if (direccionUser != null && direccionUser['direccion'] != null) {
           final direccion = direccionUser['direccion'];
 
-          final transaccion_id = await supabase
+          final transaccionId = await supabase
               .from('historial')
               .select(
                   'transaccion(*), hecho_en, direccion_salida, direccion_entrada')
               .or('direccion_salida.eq.$direccion,direccion_entrada.eq.$direccion')
               .order('hecho_en', ascending: false);
 
-          return transaccion_id;
+          return transaccionId;
         } else {
           print('No se encontró la dirección del usuario.');
         }
@@ -106,7 +106,7 @@ class UserApi {
           }).select('transaccion_id');
 
           if (response.isEmpty) {
-            throw Exception('Error al crear la transacción: ${response}');
+            throw Exception('Error al crear la transacción: $response');
           }
 
           final transaccionId = response;
