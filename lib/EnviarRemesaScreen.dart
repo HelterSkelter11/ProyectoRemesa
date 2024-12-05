@@ -68,24 +68,19 @@ class _EnviarRemesaScreenState extends State<EnviarRemesaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.teal[50], // Color de fondo más claro
+      appBar: AppBar(
+        backgroundColor: Colors.teal,
+        title: const Text(
+          'Enviar Remesa',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+      ),
       body: SafeArea(
         child: Column(
           children: [
-            
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              child: const Text(
-                'Enviar Remesa',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
             const SizedBox(height: 20),
-
             Expanded(
               child: Container(
                 decoration: const BoxDecoration(
@@ -102,57 +97,67 @@ class _EnviarRemesaScreenState extends State<EnviarRemesaScreen> {
                     const TextField(
                       decoration: InputDecoration(
                         labelText: 'Dirección',
-                        hintText: 'Value',
+                        hintText: 'Introduce la dirección',
+                        border: OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 10),
                     const TextField(
                       decoration: InputDecoration(
                         labelText: 'Cantidad',
-                        hintText: 'Value',
+                        hintText: 'Introduce la cantidad',
+                        border: OutlineInputBorder(),
                       ),
+                      keyboardType: TextInputType.number,
                     ),
                     const SizedBox(height: 10),
                     const TextField(
                       decoration: InputDecoration(
                         labelText: 'Descripción',
-                        hintText: 'Value',
+                        hintText: 'Introduce una descripción',
+                        border: OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 20),
-                    
                     ElevatedButton(
                       onPressed: () => _showCurrencySelectionDialog(context),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.teal, 
+                        backgroundColor: Colors.teal,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
+                        padding: const EdgeInsets.symmetric(vertical: 15),
                       ),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.settings, color: Colors.white),
+                          const Icon(Icons.attach_money, color: Colors.white),
+                          const SizedBox(width: 8),
                           Text(_selectedCurrency),
                         ],
                       ),
                     ),
                     const SizedBox(height: 10),
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        // Acción de enviar remesa
+                      },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.teal,
+                        backgroundColor: Colors.teal[700],
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
+                        padding: const EdgeInsets.symmetric(vertical: 15),
                       ),
-                      child: const Text('Enviar'),
+                      child: const Text(
+                        'Enviar',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
-      
             Container(
               color: Colors.teal,
               padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -162,20 +167,19 @@ class _EnviarRemesaScreenState extends State<EnviarRemesaScreen> {
                   IconButton(
                     icon: const Icon(Icons.send, color: Colors.white),
                     onPressed: () {
-                   
+                      // Acción del icono de enviar
                     },
                   ),
                   IconButton(
                     icon: const Icon(Icons.home, color: Colors.white),
                     onPressed: () {
-              
                       Navigator.pop(context);
                     },
                   ),
                   IconButton(
                     icon: const Icon(Icons.settings, color: Colors.white),
                     onPressed: () {
-                    
+                      // Acción del icono de configuración
                     },
                   ),
                 ],
