@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'apis/user_api.dart';
 
 class EnviarRemesaScreen extends StatefulWidget {
   const EnviarRemesaScreen({super.key});
@@ -9,6 +10,9 @@ class EnviarRemesaScreen extends StatefulWidget {
 
 class _EnviarRemesaScreenState extends State<EnviarRemesaScreen> {
   String _selectedCurrency = 'Seleccionar Moneda';
+  final TextEditingController direccionController = TextEditingController();
+  final TextEditingController cantidadController = TextEditingController();
+  final TextEditingController descripcionController = TextEditingController();
 
   void _showCurrencySelectionDialog(BuildContext context) {
     showDialog(
@@ -65,10 +69,42 @@ class _EnviarRemesaScreenState extends State<EnviarRemesaScreen> {
     );
   }
 
+  Future<void> agregarTransaccion() async {
+    final direccion = direccionController.text;
+    final cantidad = double.tryParse(cantidadController.text) ?? 0.0;
+    final descripcion = descripcionController.text;
+
+    if (direccion.isEmpty || cantidad <= 0 || descripcion.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Por favor, llena todos los campos correctamente.")),
+      );
+      return;
+    }
+
+    try {
+      final userApi = UserApi();
+      await userApi.agregarTransaccion(
+        direccionDestino: direccion,
+        monto: cantidad,
+        descripcion: descripcion,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Transaccion agregados correctamente")),
+      );
+
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error al agregar Transaccion: $e")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.teal[50], // Color de fondo más claro
+      backgroundColor: Colors.teal[50],
       appBar: AppBar(
         backgroundColor: Colors.teal,
         title: const Text(
@@ -94,16 +130,18 @@ class _EnviarRemesaScreenState extends State<EnviarRemesaScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const TextField(
-                      decoration: InputDecoration(
+                    TextField(
+                      controller: direccionController,
+                      decoration: const InputDecoration(
                         labelText: 'Dirección',
                         hintText: 'Introduce la dirección',
                         border: OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 10),
-                    const TextField(
-                      decoration: InputDecoration(
+                    TextField(
+                      controller: cantidadController,
+                      decoration: const InputDecoration(
                         labelText: 'Cantidad',
                         hintText: 'Introduce la cantidad',
                         border: OutlineInputBorder(),
@@ -111,8 +149,9 @@ class _EnviarRemesaScreenState extends State<EnviarRemesaScreen> {
                       keyboardType: TextInputType.number,
                     ),
                     const SizedBox(height: 10),
-                    const TextField(
-                      decoration: InputDecoration(
+                    TextField(
+                      controller: descripcionController,
+                      decoration: const InputDecoration(
                         labelText: 'Descripción',
                         hintText: 'Introduce una descripción',
                         border: OutlineInputBorder(),
@@ -139,9 +178,7 @@ class _EnviarRemesaScreenState extends State<EnviarRemesaScreen> {
                     ),
                     const SizedBox(height: 10),
                     ElevatedButton(
-                      onPressed: () {
-                        // Acción de enviar remesa
-                      },
+                      onPressed:  agregarTransaccion,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.teal[700],
                         shape: RoundedRectangleBorder(

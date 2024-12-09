@@ -63,17 +63,30 @@ class UserApi {
     return null;
   }
 
-  Future<void> agregarTransaccion(
-      {required String direccionDestino,
-      required double monto,
-      required String stablecoin,
-      required String descripcion,
-      required bool entrada}) async {
+  Future<void> agregarTransaccion({
+    required String direccionDestino,
+    required double monto,
+    required String descripcion,
+  }) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final userId = prefs.getInt('user_id');
 
       if (userId != null) {
+        //obtiene el otro usuario
+        final direccionDestinoResponse = await supabase
+            .from('direcciones')
+            .select('user_id')
+            .eq('direccion', direccionDestino)
+            .maybeSingle();
+
+        if (direccionDestinoResponse == null) {
+          throw Exception('La dirección de destino no existe');
+        }
+        //id del otro usuario hecho
+        final user_id_destino = direccionDestinoResponse['user_id'];
+
+        //id del usuario que envia
         final direccionUser = await supabase
             .from('direcciones')
             .select('direccion')
@@ -81,10 +94,16 @@ class UserApi {
             .maybeSingle();
 
         if (direccionUser != null && direccionUser['direccion'] != null) {
+          //direeccion del usuario que envia
           final direccionSalida = direccionUser['direccion'];
 
+          if (direccionSalida == direccionDestino) {
+            throw Exception('No se puede enviar a usted mismo');
+          }
+
+          //balance del user que envia
           final balanceResponse = await supabase
-              .from('usuarios')
+              .from('user')
               .select('balance')
               .eq('user_id', userId)
               .single();
@@ -95,21 +114,21 @@ class UserApi {
             throw Exception('Saldo insuficiente');
           }
 
+          //crea la transaccion
           final response = await supabase.from('transaccion').insert({
             'descripcion': descripcion,
             'monto': monto,
-            'stablecoin': stablecoin,
+            //'stablecoin': stablecoin,
             'estado': 'pendiente',
-            'direccion_salida': direccionSalida,
-            'direccion_entrada': direccionDestino,
-            'metodo_conversion': 'manual', //no se que poner aqui xd
+            'metodo_conversion': 'manual',
           }).select('transaccion_id');
 
           if (response.isEmpty) {
             throw Exception('Error al crear la transacción: $response');
           }
 
-          final transaccionId = response;
+          //crea el historial
+          final transaccionId = response[0]['transaccion_id'];
           await supabase.from('historial').insert([
             {
               'transaccion_id': transaccionId,
@@ -119,7 +138,24 @@ class UserApi {
             }
           ]);
 
-          print('Transacción creada con éxito');
+          await supabase
+            .from('user')
+            .update({'balance': balance - monto})
+            .eq('user_id', userId);
+
+          final balanceDestinoResponse = await supabase
+            .from('user')
+            .select('balance')
+            .eq('user_id', user_id_destino)
+            .single();
+
+            final balanceDestino = balanceDestinoResponse['balance'];
+
+            await supabase
+            .from('user')
+            .update({'balance': balanceDestino + monto})
+            .eq('user_id', user_id_destino);
+          
         } else {
           throw Exception('No se encontró la dirección del usuario');
         }
@@ -128,6 +164,83 @@ class UserApi {
       }
     } catch (e) {
       print('Error al agregar transacción: $e');
+      throw e;
+    }
+  }
+
+  Future<void> agregarFondos({
+    required double monto,
+    required String descripcion,
+  }) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getInt('user_id');
+
+      if (userId == null) {
+        throw Exception('Usuario no ha iniciado sesión');
+      }
+
+      final direccionUser = await supabase
+          .from('direcciones')
+          .select('direccion')
+          .eq('user_id', userId)
+          .maybeSingle();
+
+      if (direccionUser == null || direccionUser['direccion'] == null) {
+        throw Exception('No se encontró la dirección del usuario');
+      }
+
+      final direccionDestino = direccionUser['direccion'];
+
+      final response = await supabase.from('transaccion').insert({
+        'descripcion': descripcion,
+        'monto': monto,
+        'estado': 'completada',
+        'metodo_conversion': 'manual',
+      }).select('transaccion_id');
+
+      if (response.isEmpty) {
+        throw Exception('Error al crear la transacción');
+      }
+
+      final transaccionId = response[0]['transaccion_id'];
+
+      await supabase.from('historial').insert([
+        {
+          'transaccion_id': transaccionId,
+          'direccion_salida': 'BANCO',
+          'direccion_entrada': direccionDestino,
+          'hecho_en': DateTime.now().toIso8601String(),
+        }
+      ]);
+
+      final userBalance = await supabase
+          .from('user')
+          .select('balance')
+          .eq('user_id', userId)
+          .maybeSingle();
+
+      if (userBalance == null || userBalance['balance'] == null) {
+        throw Exception('No se encontró el balance del usuario');
+      }
+
+      final nuevoBalance = userBalance['balance'] + monto;
+
+      final balanceUpdateResponse = await supabase
+          .from('user')
+          .update({'balance': nuevoBalance})
+          .eq('user_id', userId)
+          .select('*');
+
+      if (balanceUpdateResponse.isNotEmpty) {
+        print('Balance actualizado correctamente');
+      } else {
+        throw Exception('Error al actualizar el balance del usuario');
+      }
+
+      print('Transacción completada con éxito y balance actualizado');
+    } catch (e) {
+      print('Error al agregar fondos: $e');
     }
   }
 
