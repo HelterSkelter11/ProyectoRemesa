@@ -19,7 +19,6 @@ class _HistorialScreenState extends State<HistorialScreen> {
   List<Map<String, dynamic>> get transaccionesFiltradas {
     List<Map<String, dynamic>> filtradas = widget.recentTransactions;
 
-    
     if (!filtrarRecibidos) {
       filtradas = filtradas
           .where((t) => t['transaccion']['tipo'] != 'recibido')
@@ -86,7 +85,7 @@ class _HistorialScreenState extends State<HistorialScreen> {
       appBar: AppBar(
         backgroundColor: Colors.teal,
         title: const Text(
-          'Historial:',
+          'Historial de Transacciones',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
@@ -96,13 +95,12 @@ class _HistorialScreenState extends State<HistorialScreen> {
           },
         ),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey.shade50, // Fondo más suave
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-      
             const Text(
               'Filtrar Transacciones',
               style: TextStyle(
@@ -113,7 +111,7 @@ class _HistorialScreenState extends State<HistorialScreen> {
             ),
             const SizedBox(height: 16),
 
-    
+            // Filtros de tipo de transacción
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -155,7 +153,7 @@ class _HistorialScreenState extends State<HistorialScreen> {
             ),
             const SizedBox(height: 16),
 
-          
+            // Selector de fechas
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -163,16 +161,22 @@ class _HistorialScreenState extends State<HistorialScreen> {
                   onTap: _seleccionarFechaDesde,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                        vertical: 8, horizontal: 16),
+                        vertical: 10, horizontal: 18),
                     decoration: BoxDecoration(
                       color: Colors.teal.shade50,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Text(
-                      fechaDesde != null
-                          ? DateFormat('dd/MM/yyyy').format(fechaDesde!)
-                          : 'Desde',
-                      style: const TextStyle(color: Colors.teal),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.calendar_today, color: Colors.teal),
+                        const SizedBox(width: 8),
+                        Text(
+                          fechaDesde != null
+                              ? DateFormat('dd/MM/yyyy').format(fechaDesde!)
+                              : 'Desde',
+                          style: const TextStyle(color: Colors.teal),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -180,16 +184,22 @@ class _HistorialScreenState extends State<HistorialScreen> {
                   onTap: _seleccionarFechaHasta,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                        vertical: 8, horizontal: 16),
+                        vertical: 10, horizontal: 18),
                     decoration: BoxDecoration(
                       color: Colors.teal.shade50,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Text(
-                      fechaHasta != null
-                          ? DateFormat('dd/MM/yyyy').format(fechaHasta!)
-                          : 'Hasta',
-                      style: const TextStyle(color: Colors.teal),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.calendar_today, color: Colors.teal),
+                        const SizedBox(width: 8),
+                        Text(
+                          fechaHasta != null
+                              ? DateFormat('dd/MM/yyyy').format(fechaHasta!)
+                              : 'Hasta',
+                          style: const TextStyle(color: Colors.teal),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -197,7 +207,7 @@ class _HistorialScreenState extends State<HistorialScreen> {
             ),
             const SizedBox(height: 16),
 
-          
+            // Lista de transacciones filtradas
             Expanded(
               child: transaccionesFiltradas.isNotEmpty
                   ? ListView.builder(
@@ -216,10 +226,10 @@ class _HistorialScreenState extends State<HistorialScreen> {
                             : 'Fecha no disponible';
 
                         return Card(
-                          elevation: 3,
-                          margin: const EdgeInsets.only(bottom: 10),
+                          elevation: 6,
+                          margin: const EdgeInsets.only(bottom: 12),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(16),
                           ),
                           child: ListTile(
                             contentPadding: const EdgeInsets.all(16),
@@ -227,8 +237,7 @@ class _HistorialScreenState extends State<HistorialScreen> {
                               transaccion['transaccion']['tipo'] == 'recibido'
                                   ? Icons.arrow_downward
                                   : Icons.arrow_upward,
-                              color: transaccion['transaccion']['tipo'] ==
-                                      'recibido'
+                              color: transaccion['transaccion']['tipo'] == 'recibido'
                                   ? Colors.green
                                   : Colors.red,
                               size: 32,
@@ -272,6 +281,7 @@ class _HistorialScreenState extends State<HistorialScreen> {
     );
   }
 
+  // Función para mostrar los detalles de una transacción
   void _showTransactionDetails(
       BuildContext context, Map<String, dynamic> transaccion) {
     final descripcion =
