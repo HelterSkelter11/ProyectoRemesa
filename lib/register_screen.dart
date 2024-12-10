@@ -14,14 +14,15 @@ class RegisterScreen extends StatelessWidget {
     final emailController = TextEditingController();
     final passwordController = TextEditingController();
     final confirmPasswordController = TextEditingController();
-    final DireccionController = TextEditingController();
+    final addressController =
+        TextEditingController(); // Nuevo controlador para la dirección
 
     Future<void> registerUser() async {
       final username = usernameController.text.trim();
       final email = emailController.text.trim();
       final password = passwordController.text.trim();
       final confirmPassword = confirmPasswordController.text.trim();
-      final direccion = DireccionController.text.trim();
+      final address = addressController.text.trim(); // Obtener dirección
 
       if (password != confirmPassword) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -34,7 +35,6 @@ class RegisterScreen extends StatelessWidget {
 
       try {
         final response = await supabase.from('user').insert({
-          
           'username': username,
           'email': email,
           'password': hashedPassword,
@@ -48,17 +48,23 @@ class RegisterScreen extends StatelessWidget {
         } else {
           final createDir = await supabase.from('direcciones').insert({
             'user_id': toInt(response[0]),
-            'direccion': direccion,
+            'direccion': address,
           }).select();
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Usuario creado con éxito')),
-          );
-          Navigator.pop(context);
+          if (createDir.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('No se pudo crear el usuario')),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Usuario creado con éxito')),
+            );
+            Navigator.pop(context);
+          }
         }
       } on PostgrestException catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.message}')), 
+          SnackBar(content: Text('Error: ${e.message}')),
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -122,13 +128,22 @@ class RegisterScreen extends StatelessWidget {
                     hintText: 'Confirmar contraseña',
                   ),
                 ),
+                const SizedBox(height: 20),
+                const Text('Dirección'), // Nuevo campo
+                TextField(
+                  controller: addressController,
+                  decoration: const InputDecoration(
+                    hintText: 'Dirección ',
+                  ),
+                ),
                 const SizedBox(height: 30),
                 Center(
                   child: ElevatedButton(
                     onPressed: registerUser,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF71C3A7),
-                      padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 15),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 80, vertical: 15),
                     ),
                     child: const Text(
                       'Crear Cuenta',
@@ -160,6 +175,5 @@ class RegisterScreen extends StatelessWidget {
         ],
       ),
     );
-
   }
 }

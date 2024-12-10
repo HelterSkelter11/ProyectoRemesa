@@ -305,13 +305,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ElevatedButton(
                             onPressed: () {
                               Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => HistorialScreen(
-                                    recentTransactions: recentTransactions,
-                                  ),
-                                ),
-                              );
+                              context,
+                            MaterialPageRoute(
+                              builder: (context) => HistorialScreen(recentTransactions: recentTransactions),
+                            ),
+                          );
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.teal[600],
