@@ -35,23 +35,36 @@ class InfuraApi {
     return balanceInWei.toString();
   }
 
-  Future<void> buyTokens(String privateKey) async {
+  Future<String> buyTokens(String privateKey, double amount, String currency) async {
   final contract = await getContract();
   final function = contract.function('buyTokens');
 
+  BigInt amountInWei;
+  if (currency == 'USD') {
+    double usdToEtherRate = 0.0006;
+    amountInWei = BigInt.from(amount / usdToEtherRate * 1e18);
+  } else if (currency == 'HNL') {
+    double hnlToEtherRate = 0.000024;
+    amountInWei = BigInt.from(amount / hnlToEtherRate * 1e18);
+  } else {
+    throw Exception('Moneda no soportada');
+  }
+
   final credentials = EthPrivateKey.fromHex(privateKey);
 
-  await _client.sendTransaction(
+  final transactionHash = await _client.sendTransaction(
     credentials,
     Transaction.callContract(
       contract: contract,
       function: function,
       parameters: [],
+      value: EtherAmount.inWei(amountInWei),
     ),
-    chainId: 42161,
+    chainId: 421614,
   );
 
-  //probando cosas aqui,
-  //hacer aqui las interacciones y enviarlas a las api porque de ahi se saca la informacion
+  return transactionHash; 
 }
+
+
 }
