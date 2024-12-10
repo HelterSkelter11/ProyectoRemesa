@@ -5,6 +5,7 @@ import 'apis/user_api.dart';
 import 'package:intl/intl.dart';
 import 'AgregarFondosScreen.dart';
 import 'HistorialScreen.dart';
+import 'main.dart'; 
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -70,17 +71,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  Future<void> _logout() async {
+    try {
+      await supabase.auth.signOut(); 
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al cerrar sesión: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blueGrey[50], // Cambio de fondo
+      backgroundColor: Colors.blueGrey[50],
       body: SafeArea(
         child: isLoading
             ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
                 child: Column(
                   children: [
-                    // Header
+              
                     Container(
                       padding: const EdgeInsets.symmetric(
                           vertical: 20, horizontal: 16),
@@ -104,16 +118,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               color: Colors.white,
                             ),
                           ),
-                          const Icon(
-                            Icons.account_circle,
-                            size: 32,
-                            color: Colors.white,
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: _logout, 
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.logout,
+                                      size: 24,
+                                      color: Colors.white,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    const Text(
+                                      'Cerrar sesión',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
 
-                    // Balance Section
+            
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
@@ -190,7 +224,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                     ),
 
-                    // Recent Transactions Section
+                   
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
@@ -289,50 +323,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                             ),
                             child: const Text('Ver Historial'),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Bottom Navigation
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.teal[700]!, Colors.teal[300]!],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(20)),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.send, color: Colors.white),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const EnviarRemesaScreen(),
-                                ),
-                              ).then((_) {
-                                _reloadData();
-                              });
-                            },
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.home, color: Colors.white),
-                            onPressed: () {},
-                          ),
-                          IconButton(
-                            icon:
-                                const Icon(Icons.settings, color: Colors.white),
-                            onPressed: () {},
                           ),
                         ],
                       ),
