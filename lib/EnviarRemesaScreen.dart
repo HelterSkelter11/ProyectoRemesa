@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'apis/user_api.dart';
-import 'apis/infura_api.dart';
 
 class EnviarRemesaScreen extends StatefulWidget {
   const EnviarRemesaScreen({super.key});
@@ -14,15 +13,31 @@ class _EnviarRemesaScreenState extends State<EnviarRemesaScreen> {
   final String contractAddress = '0xC7b9De8bF52a2eb0a7248e16149Ab9d5D96Ebe6F';
 
   String _selectedCurrency = 'Seleccionar Moneda';
+  double _conversionRate = 1.0; // Tasa de conversión inicial
+  String _convertedAmount = ''; // Monto convertido dinámicamente
   final TextEditingController direccionController = TextEditingController();
   final TextEditingController cantidadController = TextEditingController();
   final TextEditingController descripcionController = TextEditingController();
 
-  Future<void> _connectToInfura() async {
-    final infuraApi = InfuraApi(infuraUrl, contractAddress);
-    await infuraApi.connect();
-    final chainId = await infuraApi.getChainId();
-    print('Connected to chain id: $chainId');
+  // Mapeo de tasas de cambio (simuladas)
+  final Map<String, double> conversionRates = {
+    'Tether (USDT)': 0.041,
+    'USDC (USDC)': 0.041,
+    'Dolares (USD)': 0.041,
+    'Euro (EU)': 0.038,
+  };
+
+  void _updateConversion(String input) {
+    final cantidad = double.tryParse(input) ?? 0.0;
+
+    setState(() {
+      if (_selectedCurrency == 'Seleccionar Moneda' || cantidad <= 0) {
+        _convertedAmount = '';
+      } else {
+        final convertedValue = cantidad * _conversionRate;
+        _convertedAmount = '${convertedValue.toStringAsFixed(2)} $_selectedCurrency';
+      }
+    });
   }
 
   void _showCurrencySelectionDialog(BuildContext context) {
@@ -30,51 +45,21 @@ class _EnviarRemesaScreenState extends State<EnviarRemesaScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          
-          title: const Text(
-            'Selecciona tu Moneda',
-            textAlign: TextAlign.center,
-          ),
+          title: const Text('Selecciona tu Moneda'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: const Text('Tether (USDT)'),
+            children: conversionRates.keys.map((currency) {
+              return ListTile(
+                title: Text(currency),
                 onTap: () {
                   setState(() {
-                    _selectedCurrency = 'Tether (USDT)';
+                    _selectedCurrency = currency;
+                    _conversionRate = conversionRates[currency]!;
                   });
                   Navigator.of(context).pop();
                 },
-              ),
-              ListTile(
-                title: const Text('USDC (USDC)'),
-                onTap: () {
-                  setState(() {
-                    _selectedCurrency = 'USDC (USDC)';
-                  });
-                  Navigator.of(context).pop();
-                },
-              ),
-              ListTile(
-                title: const Text('Dolares (USD)'),
-                onTap: () {
-                  setState(() {
-                    _selectedCurrency = 'Dolares (USD)';
-                  });
-                  Navigator.of(context).pop();
-                },
-              ),
-              ListTile(
-                title: const Text('Euro (EU)'),
-                onTap: () {
-                  setState(() {
-                    _selectedCurrency = 'Euro (EU)';
-                  });
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
+              );
+            }).toList(),
           ),
         );
       },
@@ -102,13 +87,13 @@ class _EnviarRemesaScreenState extends State<EnviarRemesaScreen> {
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Transaccion agregados correctamente")),
+        const SnackBar(content: Text("Transacción agregada correctamente")),
       );
 
       Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error al agregar Transaccion: $e")),
+        SnackBar(content: Text("Error al agregar transacción: $e")),
       );
     }
   }
@@ -119,123 +104,104 @@ class _EnviarRemesaScreenState extends State<EnviarRemesaScreen> {
       backgroundColor: Colors.teal[50],
       appBar: AppBar(
         backgroundColor: Colors.teal,
-        title: const Text(
-          'Enviar Remesa',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: const Text('Enviar Remesa', style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            Expanded(
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Card(
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        TextField(
+                          controller: direccionController,
+                          decoration: InputDecoration(
+                            labelText: 'Dirección',
+                            hintText: 'Introduce la dirección',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 15),
+                        TextField(
+                          controller: cantidadController,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: 'Cantidad (Lempiras)',
+                            hintText: 'Introduce la cantidad',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          onChanged: _updateConversion,
+                        ),
+                        const SizedBox(height: 10),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            _convertedAmount.isNotEmpty
+                                ? 'Equivalente: $_convertedAmount'
+                                : 'Selecciona una moneda para ver la conversión',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: _convertedAmount.isNotEmpty ? Colors.black : Colors.grey,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 15),
+                        TextField(
+                          controller: descripcionController,
+                          decoration: InputDecoration(
+                            labelText: 'Descripción',
+                            hintText: 'Introduce una descripción',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextField(
-                      controller: direccionController,
-                      decoration: const InputDecoration(
-                        labelText: 'Dirección',
-                        hintText: 'Introduce la dirección',
-                        border: OutlineInputBorder(),
-                      ),
+                const SizedBox(height: 20),
+                ElevatedButton.icon(
+                  onPressed: () => _showCurrencySelectionDialog(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.teal,
+                    padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      controller: cantidadController,
-                      decoration: const InputDecoration(
-                        labelText: 'Cantidad',
-                        hintText: 'Introduce la cantidad',
-                        border: OutlineInputBorder(),
-                      ),
-                      keyboardType: TextInputType.number,
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      controller: descripcionController,
-                      decoration: const InputDecoration(
-                        labelText: 'Descripción',
-                        hintText: 'Introduce una descripción',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () => _showCurrencySelectionDialog(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.teal,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.attach_money, color: Colors.white),
-                          const SizedBox(width: 8),
-                          Text(_selectedCurrency),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed:  agregarTransaccion,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.teal[700],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                      ),
-                      child: const Text(
-                        'Enviar',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
+                  ),
+                  icon: const Icon(Icons.attach_money, color: Colors.white),
+                  label: Text(_selectedCurrency),
                 ),
-              ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: agregarTransaccion,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.teal[700],
+                    padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Enviar',
+                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  ),
+                ),
+              ],
             ),
-            Container(
-              color: Colors.teal,
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.send, color: Colors.white),
-                    onPressed: () {
-                      // Acción del icono de enviar
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.home, color: Colors.white),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.settings, color: Colors.white),
-                    onPressed: () {
-                      _connectToInfura();
-                      // Acción del icono de configuración
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
