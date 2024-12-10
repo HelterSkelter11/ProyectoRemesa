@@ -13,13 +13,13 @@ class _EnviarRemesaScreenState extends State<EnviarRemesaScreen> {
   final String contractAddress = '0xC7b9De8bF52a2eb0a7248e16149Ab9d5D96Ebe6F';
 
   String _selectedCurrency = 'Seleccionar Moneda';
-  double _conversionRate = 1.0; // Tasa de conversión inicial
-  String _convertedAmount = ''; // Monto convertido dinámicamente
+  double _conversionRate = 1.0;
+  String _convertedAmount = ''; 
   final TextEditingController direccionController = TextEditingController();
   final TextEditingController cantidadController = TextEditingController();
   final TextEditingController descripcionController = TextEditingController();
 
-  // Mapeo de tasas de cambio (simuladas)
+
   final Map<String, double> conversionRates = {
     'Tether (USDT)': 0.041,
     'USDC (USDC)': 0.041,
