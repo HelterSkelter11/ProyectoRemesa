@@ -79,6 +79,13 @@ class _HistorialScreenState extends State<HistorialScreen> {
     }
   }
 
+  void _reiniciarFechas() {
+    setState(() {
+      fechaDesde = null;
+      fechaHasta = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,7 +102,7 @@ class _HistorialScreenState extends State<HistorialScreen> {
           },
         ),
       ),
-      backgroundColor: Colors.grey.shade50, // Fondo más suave
+      backgroundColor: Colors.grey.shade50,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -111,7 +118,6 @@ class _HistorialScreenState extends State<HistorialScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Filtros de tipo de transacción
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -153,7 +159,7 @@ class _HistorialScreenState extends State<HistorialScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Selector de fechas
+            // Los botones de fecha están ahora separados
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -180,6 +186,11 @@ class _HistorialScreenState extends State<HistorialScreen> {
                     ),
                   ),
                 ),
+                if (fechaDesde != null || fechaHasta != null)
+                  IconButton(
+                    onPressed: _reiniciarFechas,
+                    icon: const Icon(Icons.refresh, color: Colors.red),
+                  ),
                 GestureDetector(
                   onTap: _seleccionarFechaHasta,
                   child: Container(
@@ -207,7 +218,6 @@ class _HistorialScreenState extends State<HistorialScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Lista de transacciones filtradas
             Expanded(
               child: transaccionesFiltradas.isNotEmpty
                   ? ListView.builder(
@@ -237,7 +247,8 @@ class _HistorialScreenState extends State<HistorialScreen> {
                               transaccion['transaccion']['tipo'] == 'recibido'
                                   ? Icons.arrow_downward
                                   : Icons.arrow_upward,
-                              color: transaccion['transaccion']['tipo'] == 'recibido'
+                              color: transaccion['transaccion']['tipo'] ==
+                                      'recibido'
                                   ? Colors.green
                                   : Colors.red,
                               size: 32,
@@ -253,14 +264,6 @@ class _HistorialScreenState extends State<HistorialScreen> {
                               'Lps. $monto\n$fecha',
                               style: const TextStyle(color: Colors.black54),
                             ),
-                            trailing: const Icon(
-                              Icons.arrow_forward_ios,
-                              color: Colors.teal,
-                              size: 16,
-                            ),
-                            onTap: () {
-                              _showTransactionDetails(context, transaccion);
-                            },
                           ),
                         );
                       },
@@ -278,78 +281,6 @@ class _HistorialScreenState extends State<HistorialScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  // Función para mostrar los detalles de una transacción
-  void _showTransactionDetails(
-      BuildContext context, Map<String, dynamic> transaccion) {
-    final descripcion =
-        transaccion['transaccion']['descripcion'] ?? 'Descripción no disponible';
-    final monto = transaccion['transaccion']['monto'] ?? 0.0;
-    final Rawfecha = transaccion['hecho_en'];
-    final fecha = Rawfecha != null
-        ? DateFormat('dd/MM/yyyy hh:mm a')
-            .format(DateTime.parse(Rawfecha).toLocal())
-        : 'Fecha no disponible';
-    final receptor = transaccion['receptor'] ?? 'No disponible';
-    final idTransaccion = transaccion['transaccion']['id'] ?? 'Sin ID';
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: const Text(
-            'Detalles de la Transacción',
-            style: TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Descripción: $descripcion',
-                style: const TextStyle(color: Colors.black),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Monto: Lps. $monto',
-                style: const TextStyle(color: Colors.black),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Fecha: $fecha',
-                style: const TextStyle(color: Colors.black),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Receptor: $receptor',
-                style: const TextStyle(color: Colors.black),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'ID Transacción: $idTransaccion',
-                style: const TextStyle(color: Colors.black45),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text(
-                'Cerrar',
-                style: TextStyle(color: Colors.teal),
-              ),
-            ),
-          ],
-        );
-      },
     );
   }
 }
