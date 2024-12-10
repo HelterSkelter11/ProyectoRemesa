@@ -32,7 +32,7 @@ class LoginScreen extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Inicio de sesión exitoso')),
           );
-          // Redirige a DashboardScreen
+         
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const DashboardScreen()),

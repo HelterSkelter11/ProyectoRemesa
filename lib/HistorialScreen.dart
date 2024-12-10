@@ -19,7 +19,7 @@ class _HistorialScreenState extends State<HistorialScreen> {
   List<Map<String, dynamic>> get transaccionesFiltradas {
     List<Map<String, dynamic>> filtradas = widget.recentTransactions;
 
-    // Filtrar por tipo (Recibido/Enviado)
+    
     if (!filtrarRecibidos) {
       filtradas = filtradas
           .where((t) => t['transaccion']['tipo'] != 'recibido')
@@ -31,7 +31,6 @@ class _HistorialScreenState extends State<HistorialScreen> {
           .toList();
     }
 
-    // Filtrar por rango de fechas
     if (fechaDesde != null) {
       filtradas = filtradas.where((t) {
         final fechaTransaccion = DateTime.parse(t['hecho_en']);
@@ -97,13 +96,13 @@ class _HistorialScreenState extends State<HistorialScreen> {
           },
         ),
       ),
-      backgroundColor: Colors.white, // Fondo blanco
+      backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Título
+      
             const Text(
               'Filtrar Transacciones',
               style: TextStyle(
@@ -114,7 +113,7 @@ class _HistorialScreenState extends State<HistorialScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Filtros de Recibido y Enviado
+    
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -156,7 +155,7 @@ class _HistorialScreenState extends State<HistorialScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Selección de fechas
+          
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -198,7 +197,7 @@ class _HistorialScreenState extends State<HistorialScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Lista de transacciones filtradas
+          
             Expanded(
               child: transaccionesFiltradas.isNotEmpty
                   ? ListView.builder(
