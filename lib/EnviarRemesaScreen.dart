@@ -14,11 +14,11 @@ class _EnviarRemesaScreenState extends State<EnviarRemesaScreen> {
 
   String _selectedCurrency = 'Seleccionar Moneda';
   double _conversionRate = 1.0;
-  String _convertedAmount = ''; 
+  String _convertedAmount = '';
   final TextEditingController direccionController = TextEditingController();
   final TextEditingController cantidadController = TextEditingController();
   final TextEditingController descripcionController = TextEditingController();
-
+  final TextEditingController passwordController = TextEditingController();
 
   final Map<String, double> conversionRates = {
     'Tether (USDT)': 0.041,
@@ -76,6 +76,43 @@ class _EnviarRemesaScreenState extends State<EnviarRemesaScreen> {
         const SnackBar(content: Text("Por favor, llena todos los campos correctamente.")),
       );
       return;
+    }
+
+    if (_selectedCurrency == 'USDC (USDC)' || _selectedCurrency == 'Tether (USDT)') {
+      final result = await showDialog<String>(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("Confirmar Transacción"),
+            content: TextField(
+              controller: passwordController,
+              decoration: const InputDecoration(
+                labelText: "Contraseña",
+                hintText: "Ingresa tu contraseña",
+                border: OutlineInputBorder(),
+              ),
+              obscureText: true,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, null),
+                child: const Text("Cancelar"),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, passwordController.text),
+                child: const Text("Aceptar"),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (result == null || result.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Operación cancelada")),
+        );
+        return;
+      }
     }
 
     try {
