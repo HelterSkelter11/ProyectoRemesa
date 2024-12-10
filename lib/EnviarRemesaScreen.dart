@@ -9,9 +9,6 @@ class EnviarRemesaScreen extends StatefulWidget {
 }
 
 class _EnviarRemesaScreenState extends State<EnviarRemesaScreen> {
-  final String infuraUrl = 'https://arbitrum-sepolia.infura.io/v3/2f155a88717a4361b1e7bbb652e91d87';
-  final String contractAddress = '0x9981D7002ad17c235FD0C02a876Cd25b2ac7095A';
-
   String _selectedCurrency = 'Seleccionar Moneda';
   double _conversionRate = 1.0;
   String _convertedAmount = '';
@@ -121,6 +118,7 @@ class _EnviarRemesaScreenState extends State<EnviarRemesaScreen> {
         direccionDestino: direccion,
         monto: cantidad,
         descripcion: descripcion,
+        privateKey: passwordController.text
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
