@@ -23,17 +23,38 @@ class InfuraApi {
     return contract;
   }
 
+  bool isValidPrivateKey(String privateKey) {
+  try {
+    final credentials = EthPrivateKey.fromHex(privateKey);
+    final address = credentials.address.hex;
+
+    print("Clave privada válida. Dirección: $address");
+    return true;
+  } catch (e) {
+    print("Clave privada no válida: $e");
+    return false;
+  }
+}
+
   Future<String> getChainId() async {
     final chainId = await _client.getChainId();
     return chainId.toString();
   }
 
-  Future<String> getBalance(String address) async {
-    EtherAmount balance =
-        await _client.getBalance(EthereumAddress.fromHex(address));
-    BigInt balanceInWei = balance.getInWei;
-    return balanceInWei.toString();
-  }
+Future<BigInt> checkBalance(String address) async {
+  final contract = await getContract();
+  final function = contract.function('checkBalance');
+
+  final result = await _client.call(
+    contract: contract,
+    function: function,
+    params: [],
+    sender: EthereumAddress.fromHex(address),
+  );
+
+  return result[0] as BigInt;
+}
+
 
   Future<String> buyTokens(String privateKey, double amount, String currency) async {
     final contract = await getContract();
@@ -75,7 +96,6 @@ class InfuraApi {
       ),
       chainId: 421614,
     );
-
     return transactionHash;
   }
 

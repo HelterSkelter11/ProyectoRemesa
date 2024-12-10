@@ -1,8 +1,13 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:web3dart/web3dart.dart';
+import 'package:http/http.dart';
 
 class UserApi {
   final supabase = Supabase.instance.client;
+  late Web3Client _web3client;
+  final String infuraUrl = 'https://arbitrum-sepolia.infura.io/v3/2f155a88717a4361b1e7bbb652e91d87';
+  final String contractAddress = '0x9981D7002ad17c235FD0C02a876Cd25b2ac7095A';
 
   Future<Map<String, dynamic>?> getUserById() async {
     try {
