@@ -12,24 +12,76 @@ class _AgregarFondosScreenState extends State<AgregarFondosScreen> {
   final TextEditingController cantidadController = TextEditingController();
   final TextEditingController descripcionController = TextEditingController();
   final TextEditingController tokenController = TextEditingController();
+  final TextEditingController tarjetaController = TextEditingController();
+  final TextEditingController cvvController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   int selectedPaymentOption = 0;
 
   Future<void> agregarFondosHandler() async {
-    final cantidad = double.tryParse(cantidadController.text);
-    final descripcion = descripcionController.text;
+    if (selectedPaymentOption == 1) {
+      final cantidad = double.tryParse(cantidadController.text);
+      final tarjeta = tarjetaController.text;
+      final cvv = cvvController.text;
+      final descripcion = descripcionController.text;
 
-    if (cantidad == null || descripcion.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Por favor, llena todos los campos correctamente.")),
+      if (cantidad == null || tarjeta.isEmpty || cvv.isEmpty || descripcion.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Por favor, llena todos los campos correctamente.")),
+        );
+        return;
+      }
+    } else if (selectedPaymentOption == 2) {
+      final token = tokenController.text;
+      final descripcion = descripcionController.text;
+
+      if (token.isEmpty || descripcion.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Por favor, llena todos los campos correctamente.")),
+        );
+        return;
+      }
+
+      final result = await showDialog<String>(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("Confirmar Token"),
+            content: TextField(
+              controller: passwordController,
+              decoration: const InputDecoration(
+                labelText: "Contraseña del token",
+                hintText: "Ingresa tu contraseña",
+                border: OutlineInputBorder(),
+              ),
+              obscureText: true,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, null),
+                child: const Text("Cancelar"),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, passwordController.text),
+                child: const Text("Aceptar"),
+              ),
+            ],
+          );
+        },
       );
-      return;
+
+      if (result == null || result.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Operación cancelada")),
+        );
+        return;
+      }
     }
 
     try {
       final userApi = UserApi();
       await userApi.agregarFondos(
-        monto: cantidad,
-        descripcion: descripcion,
+        monto: selectedPaymentOption == 1 ? double.parse(cantidadController.text) : 0.0,
+        descripcion: descripcionController.text,
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -72,23 +124,22 @@ class _AgregarFondosScreenState extends State<AgregarFondosScreen> {
               style: TextStyle(fontSize: 14, color: Colors.grey),
             ),
             const SizedBox(height: 16),
-          
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 IconButton(
                   icon: const Icon(Icons.wallet, size: 50, color: Colors.purple),
                   onPressed: () {
-                    selectPaymentOption(1); 
+                    selectPaymentOption(1);
                   },
                 ),
                 const SizedBox(width: 16),
                 GestureDetector(
                   onTap: () {
-                    selectPaymentOption(2); 
+                    selectPaymentOption(2);
                   },
                   child: const Icon(
-                    Icons.ac_unit, 
+                    Icons.ac_unit,
                     size: 50,
                     color: Colors.orange,
                   ),
@@ -96,28 +147,29 @@ class _AgregarFondosScreenState extends State<AgregarFondosScreen> {
               ],
             ),
             const SizedBox(height: 24),
-
-            
             AnimatedSwitcher(
-              duration: const Duration(milliseconds: 500), 
+              duration: const Duration(milliseconds: 500),
               child: selectedPaymentOption == 1
                   ? Column(
                       key: const ValueKey<int>(1),
                       children: [
-                        const TextField(
-                          decoration: InputDecoration(
-                            labelText: "Visa",
+                        TextField(
+                          controller: tarjetaController,
+                          decoration: const InputDecoration(
+                            labelText: "Número de Tarjeta",
                             hintText: "1234123412341234",
                             border: OutlineInputBorder(),
                           ),
                         ),
                         const SizedBox(height: 16),
-                        const TextField(
-                          decoration: InputDecoration(
-                            labelText: "Numeros de atrás",
+                        TextField(
+                          controller: cvvController,
+                          decoration: const InputDecoration(
+                            labelText: "CVV",
                             hintText: "123",
                             border: OutlineInputBorder(),
                           ),
+                          keyboardType: TextInputType.number,
                         ),
                         const SizedBox(height: 16),
                         TextField(
@@ -144,8 +196,6 @@ class _AgregarFondosScreenState extends State<AgregarFondosScreen> {
                       ? Column(
                           key: const ValueKey<int>(2),
                           children: [
-                            const Text("Por favor, ingresa tu Token", style: TextStyle(fontSize: 16)),
-                            const SizedBox(height: 16),
                             TextField(
                               controller: tokenController,
                               decoration: const InputDecoration(
@@ -165,9 +215,8 @@ class _AgregarFondosScreenState extends State<AgregarFondosScreen> {
                             ),
                           ],
                         )
-                      : Container(), 
+                      : Container(),
             ),
-
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: agregarFondosHandler,

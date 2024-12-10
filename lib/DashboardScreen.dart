@@ -121,7 +121,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           Row(
                             children: [
                               GestureDetector(
-                                onTap: _logout, 
+                                onTap: _logout, // Llama a la función de cerrar sesión
                                 child: Row(
                                   children: [
                                     const Icon(
@@ -147,7 +147,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                     ),
 
-            
+                    // Balance Section
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
@@ -224,7 +224,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                     ),
 
-                   
+                    // Recent Transactions Section
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
