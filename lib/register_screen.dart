@@ -47,7 +47,7 @@ class RegisterScreen extends StatelessWidget {
           );
         } else {
           final createDir = await supabase.from('direcciones').insert({
-            'user_id': toInt(response[0]),
+            'user_id': toInt(response[0]['user_id']),
             'direccion': address,
           }).select();
 

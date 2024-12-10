@@ -24,19 +24,27 @@ class _AgregarFondosScreenState extends State<AgregarFondosScreen> {
       final cvv = cvvController.text;
       final descripcion = descripcionController.text;
 
-      if (cantidad == null || tarjeta.isEmpty || cvv.isEmpty || descripcion.isEmpty) {
+      if (cantidad == null ||
+          tarjeta.isEmpty ||
+          cvv.isEmpty ||
+          descripcion.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Por favor, llena todos los campos correctamente.")),
+          const SnackBar(
+              content:
+                  Text("Por favor, llena todos los campos correctamente.")),
         );
         return;
       }
     } else if (selectedPaymentOption == 2) {
+      final cantidad = double.tryParse(cantidadController.text);
       final token = tokenController.text;
       final descripcion = descripcionController.text;
 
       if (token.isEmpty || descripcion.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Por favor, llena todos los campos correctamente.")),
+          const SnackBar(
+              content:
+                  Text("Por favor, llena todos los campos correctamente.")),
         );
         return;
       }
@@ -61,7 +69,8 @@ class _AgregarFondosScreenState extends State<AgregarFondosScreen> {
                 child: const Text("Cancelar"),
               ),
               TextButton(
-                onPressed: () => Navigator.pop(context, passwordController.text),
+                onPressed: () =>
+                    Navigator.pop(context, passwordController.text),
                 child: const Text("Aceptar"),
               ),
             ],
@@ -75,12 +84,28 @@ class _AgregarFondosScreenState extends State<AgregarFondosScreen> {
         );
         return;
       }
+      if(cantidad !=null){
+        final userApi = UserApi();
+    
+      final success = await userApi.exchangeTokensForLps(
+        privateKey: passwordController.text,
+        cantidad: cantidad,
+      );
+
+      if (success) {
+        print('Intercambio realizado con éxito.');
+      } else {
+        print('Error al realizar el intercambio.');
+      }
+      }      
     }
 
     try {
       final userApi = UserApi();
       await userApi.agregarFondos(
-        monto: selectedPaymentOption == 1 ? double.parse(cantidadController.text) : 0.0,
+        monto: selectedPaymentOption == 1
+            ? double.parse(cantidadController.text)
+            : 0.0,
         descripcion: descripcionController.text,
       );
 
@@ -128,7 +153,8 @@ class _AgregarFondosScreenState extends State<AgregarFondosScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.wallet, size: 50, color: Colors.purple),
+                  icon:
+                      const Icon(Icons.wallet, size: 50, color: Colors.purple),
                   onPressed: () {
                     selectPaymentOption(1);
                   },
@@ -222,7 +248,8 @@ class _AgregarFondosScreenState extends State<AgregarFondosScreen> {
               onPressed: agregarFondosHandler,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF00BFA6),
-                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
               ),
               child: const Text("Agregar Fondos"),
             ),

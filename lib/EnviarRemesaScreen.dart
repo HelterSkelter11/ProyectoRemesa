@@ -64,7 +64,7 @@ class _EnviarRemesaScreenState extends State<EnviarRemesaScreen> {
   }
 
   Future<void> agregarTransaccion() async {
-    final direccion = direccionController.text;
+    final direccion = direccionController.text.trim();
     final cantidad = double.tryParse(cantidadController.text) ?? 0.0;
     final descripcion = descripcionController.text;
 
@@ -115,10 +115,10 @@ class _EnviarRemesaScreenState extends State<EnviarRemesaScreen> {
     try {
       final userApi = UserApi();
       await userApi.agregarTransaccion(
-        direccionDestino: direccion,
+        direccionDestino: direccion.trim(),
         monto: cantidad,
-        descripcion: descripcion,
-        privateKey: passwordController.text
+        descripcion: descripcion.trim(),
+        privateKey: passwordController.text.trim()
       );
 
       ScaffoldMessenger.of(context).showSnackBar(

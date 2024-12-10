@@ -7,8 +7,9 @@ import 'infura_api.dart';
 class UserApi {
   final supabase = Supabase.instance.client;
   late Web3Client _web3client;
-  final String infuraUrl = 'https://arbitrum-sepolia.infura.io/v3/2f155a88717a4361b1e7bbb652e91d87';
-  final String contractAddress = '0x9981D7002ad17c235FD0C02a876Cd25b2ac7095A';
+  final String infuraUrl =
+      'https://sepolia.infura.io/v3/2f155a88717a4361b1e7bbb652e91d87';
+  final String contractAddress = '0x1f729E30e4fF53f4457a4Ae985CA881703a405E6';
   late InfuraApi infuraApi;
 
   UserApi() {
@@ -74,15 +75,16 @@ class UserApi {
     return null;
   }
 
-  Future<void> agregarTransaccion({
-    required String direccionDestino,
-    required double monto,
-    required String descripcion,
-    required String privateKey
-  }) async {
+  Future<void> agregarTransaccion(
+      {required String direccionDestino,
+      required double monto,
+      required String descripcion,
+      required String privateKey}) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final userId = prefs.getInt('user_id');
+
+      infuraApi.getChainId();
 
       if (userId != null) {
         //obtiene el otro usuario
@@ -92,85 +94,99 @@ class UserApi {
             .eq('direccion', direccionDestino)
             .maybeSingle();
 
-        if (direccionDestinoResponse == null) {
-          throw Exception('La dirección de destino no existe');
-        }
-        //id del otro usuario hecho
-        final user_id_destino = direccionDestinoResponse['user_id'];
+        if (direccionDestinoResponse != null &&
+            direccionDestinoResponse['user_id'] != null) {
+          final useriddestino = direccionDestinoResponse['user_id'];
 
-        //id del usuario que envia
-        final direccionUser = await supabase
-            .from('direcciones')
-            .select('direccion')
-            .eq('user_id', userId)
-            .maybeSingle();
-
-        if (direccionUser != null && direccionUser['direccion'] != null) {
-          //direeccion del usuario que envia
-          final direccionSalida = direccionUser['direccion'];
-
-          if (direccionSalida == direccionDestino) {
-            throw Exception('No se puede enviar a usted mismo');
-          }
-
-          //balance del user que envia
-          final balanceResponse = await supabase
-              .from('user')
-              .select('balance')
+          //id del usuario que envia
+          final direccionUser = await supabase
+              .from('direcciones')
+              .select('direccion')
               .eq('user_id', userId)
-              .single();
+              .maybeSingle();
 
-          final balance = balanceResponse['balance'];
+          if (direccionUser != null && direccionUser['direccion'] != null) {
+            //direeccion del usuario que envia
+            final direccionSalida = direccionUser['direccion'];
 
-          if (monto > balance) {
-            throw Exception('Saldo insuficiente');
-          }
-
-          //final token = monto/24;
-          //final transactionHash = await infuraApi.transferTokens(privateKey, direccionDestino, token.toInt());
-
-          //crea la transaccion
-          final response = await supabase.from('transaccion').insert({
-            'descripcion': descripcion,
-            'monto': monto,
-            //'stablecoin': stablecoin,
-            'estado': 'pendiente',
-            'metodo_conversion': 'manual',
-          }).select('transaccion_id');
-
-          if (response.isEmpty) {
-            throw Exception('Error al crear la transacción: $response');
-          }
-
-          //crea el historial
-          final transaccionId = response[0]['transaccion_id'];
-          await supabase.from('historial').insert([
-            {
-              'transaccion_id': transaccionId,
-              'direccion_salida': direccionSalida,
-              'direccion_entrada': direccionDestino,
-              'hecho_en': DateTime.now().toIso8601String(),
+            if (direccionSalida == direccionDestino) {
+              throw Exception('No se puede enviar a usted mismo');
             }
-          ]);
 
-          await supabase
-            .from('user')
-            .update({'balance': balance - monto})
-            .eq('user_id', userId);
+            //balance del user que envia
+            final balanceResponse = await supabase
+                .from('user')
+                .select('balance, currency')
+                .eq('user_id', userId)
+                .single();
 
-          final balanceDestinoResponse = await supabase
-            .from('user')
-            .select('balance')
-            .eq('user_id', user_id_destino)
-            .single();
+            final balance = balanceResponse['balance'];
+            final currency = balanceResponse['currency'];
 
-            final balanceDestino = balanceDestinoResponse['balance'];
+            if (monto > balance) {
+              throw Exception('Saldo insuficiente');
+            }
+
+            final isPrivateKeyValid = infuraApi.isValidPrivateKey(privateKey);
+            if (!isPrivateKeyValid) {
+              throw Exception('Esa es la clave de su Wallet');
+            }
+
+            //final tokenBalanceBefore = await infuraApi.checkBalance(direccionSalida) ;
+            final transactionHash =
+                infuraApi.buyTokens(privateKey, monto, 'HNL');
+            if (transactionHash.toString() == "") {
+              throw Exception('Algo sucedio, revise sus fondos');
+            }
+            //final tokenBalanceAfter = await infuraApi.checkBalance(direccionSalida);
+
+            final token = currency == 'USD' ? monto : monto / 25;
+
+            //final transferHash = infuraApi.transferTokens(privateKey, direccionDestino, BigInt.from(token));
+            print('llego si');
+
+            //crea la transaccion
+            final response = await supabase.from('transaccion').insert({
+              'descripcion': descripcion,
+              'monto': monto,
+              //'stablecoin': stablecoin,
+              'estado': 'pendiente',
+              'metodo_conversion': 'manual',
+            }).select('transaccion_id');
+
+            if (response.isEmpty) {
+              throw Exception('Error al crear la transacción: $response');
+            }
+
+            //crea el historial
+            final transaccionId = response[0]['transaccion_id'];
+            await supabase.from('historial').insert([
+              {
+                'transaccion_id': transaccionId,
+                'direccion_salida': direccionSalida,
+                'direccion_entrada': direccionDestino,
+                'hecho_en': DateTime.now().toIso8601String(),
+              }
+            ]);
 
             await supabase
-            .from('user')
-            .update({'balance': balanceDestino + monto})
-            .eq('user_id', user_id_destino);
-          
+                .from('user')
+                .update({'balance': balance - monto}).eq('user_id', userId);
+
+            final balanceDestinoResponse = await supabase
+                .from('user')
+                .select('balance')
+                .eq('user_id', useriddestino)
+                .single();
+
+            final balanceDestino = balanceDestinoResponse['balance'];
+            await supabase
+                .from('user')
+                .update({'balance': balanceDestino + monto}).eq(
+                    'user_id', useriddestino);
+          } else {
+            throw Exception('La dirección de destino no existe');
+          }
         } else {
           throw Exception('No se encontró la dirección del usuario');
         }
@@ -179,7 +195,7 @@ class UserApi {
       }
     } catch (e) {
       print('Error al agregar transacción: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -256,6 +272,27 @@ class UserApi {
       print('Transacción completada con éxito y balance actualizado');
     } catch (e) {
       print('Error al agregar fondos: $e');
+    }
+  }
+
+  Future<bool> exchangeTokensForLps(
+      {required String privateKey, required double cantidad}) async {
+    try {
+      final tokenAmount = BigInt.from(cantidad);
+
+      // Llama a la función del contrato para intercambiar tokens.
+      final transactionHash = await infuraApi.exchangeTokensForLempiras(
+        privateKey,
+        tokenAmount,
+      );
+
+      print('Transacción realizada: $transactionHash');
+
+      // Retorna verdadero si la transacción se realizó correctamente.
+      return true;
+    } catch (e) {
+      print('Error al realizar el intercambio: $e');
+      return false;
     }
   }
 

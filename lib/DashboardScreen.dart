@@ -122,15 +122,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             children: [
                               GestureDetector(
                                 onTap: _logout, // Llama a la función de cerrar sesión
-                                child: Row(
+                                child: const Row(
                                   children: [
-                                    const Icon(
+                                    Icon(
                                       Icons.logout,
                                       size: 24,
                                       color: Colors.white,
                                     ),
-                                    const SizedBox(width: 8),
-                                    const Text(
+                                    SizedBox(width: 8),
+                                    Text(
                                       'Cerrar sesión',
                                       style: TextStyle(
                                         color: Colors.white,
