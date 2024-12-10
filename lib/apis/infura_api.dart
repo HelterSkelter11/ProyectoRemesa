@@ -143,7 +143,7 @@ class InfuraApi {
           parameters: parameters,
           value: value,
         ),
-        chainId: 11155111,
+        chainId: 421614,
       );
       print(transactionHash);
       return transactionHash;
@@ -168,7 +168,7 @@ class InfuraApi {
         function: function,
         parameters: [to, tokenAmount],
       ),
-      chainId: 11155111,
+      chainId: 421614,
     );
 
     print('Transaction Hash: $transactionHash');
@@ -189,7 +189,7 @@ class InfuraApi {
         function: function,
         parameters: [tokenAmount],
       ),
-      chainId: 11155111,
+      chainId: 421614,
     );
 
     return transactionHash;
@@ -209,7 +209,7 @@ class InfuraApi {
         function: function,
         parameters: [tokenAmount],
       ),
-      chainId: 11155111,
+      chainId: 421614,
     );
 
     return transactionHash;

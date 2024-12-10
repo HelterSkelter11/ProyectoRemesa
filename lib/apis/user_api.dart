@@ -8,7 +8,7 @@ class UserApi {
   final supabase = Supabase.instance.client;
   late Web3Client _web3client;
   final String infuraUrl =
-      'https://sepolia.infura.io/v3/2f155a88717a4361b1e7bbb652e91d87';
+      'https://arbitrum-sepolia.infura.io/v3/2f155a88717a4361b1e7bbb652e91d87';
   final String contractAddress = '0x1f729E30e4fF53f4457a4Ae985CA881703a405E6';
   late InfuraApi infuraApi;
 
