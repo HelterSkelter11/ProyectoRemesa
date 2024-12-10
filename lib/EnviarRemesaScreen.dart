@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'apis/user_api.dart';
+import 'apis/infura_api.dart';
 
 class EnviarRemesaScreen extends StatefulWidget {
   const EnviarRemesaScreen({super.key});
@@ -9,16 +10,27 @@ class EnviarRemesaScreen extends StatefulWidget {
 }
 
 class _EnviarRemesaScreenState extends State<EnviarRemesaScreen> {
+  final String infuraUrl = 'https://arbitrum-sepolia.infura.io/v3/2f155a88717a4361b1e7bbb652e91d87';
+  final String contractAddress = '0xC7b9De8bF52a2eb0a7248e16149Ab9d5D96Ebe6F';
+
   String _selectedCurrency = 'Seleccionar Moneda';
   final TextEditingController direccionController = TextEditingController();
   final TextEditingController cantidadController = TextEditingController();
   final TextEditingController descripcionController = TextEditingController();
+
+  Future<void> _connectToInfura() async {
+    final infuraApi = InfuraApi(infuraUrl, contractAddress);
+    await infuraApi.connect();
+    final chainId = await infuraApi.getChainId();
+    print('Connected to chain id: $chainId');
+  }
 
   void _showCurrencySelectionDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          
           title: const Text(
             'Selecciona tu Moneda',
             textAlign: TextAlign.center,
@@ -216,6 +228,7 @@ class _EnviarRemesaScreenState extends State<EnviarRemesaScreen> {
                   IconButton(
                     icon: const Icon(Icons.settings, color: Colors.white),
                     onPressed: () {
+                      _connectToInfura();
                       // Acción del icono de configuración
                     },
                   ),

@@ -1,0 +1,170 @@
+{
+    "accounts": {
+      "account{0}": "0xC38D930630c8356b4Fb2ba2bEdF8d6bCd88513A6"
+    },
+    "linkReferences": {},
+    "transactions": [
+      {
+        "timestamp": 1733767548220,
+        "record": {
+          "value": "0",
+          "inputs": "()",
+          "parameters": [],
+          "name": "",
+          "type": "constructor",
+          "abi": "0xbf3311589ece246cbe64990a4e71298a99d0a895535d49949164f896e9171e24",
+          "contractName": "Remesas",
+          "bytecode": "608060405260196001553480156013575f5ffd5b50610466806100215f395ff3fe60806040526004361061004c575f3560e01c806327e235e3146100575780633ba0b9a9146100945780634302fd0d146100a9578063bec3fa17146100ca578063d0febe4c146100e9575f5ffd5b3661005357005b5f5ffd5b348015610062575f5ffd5b5061008261007136600461037a565b5f6020819052908152604090205481565b60405190815260200160405180910390f35b34801561009f575f5ffd5b5061008260015481565b3480156100b4575f5ffd5b506100c86100c336600461039a565b6100f1565b005b3480156100d5575f5ffd5b506100c86100e43660046103b1565b6101bf565b6100c86102a5565b335f908152602081905260409020548111156101495760405162461bcd60e51b815260206004820152601260248201527153616c646f20696e737566696369656e746560701b60448201526064015b60405180910390fd5b5f6001548261015891906103ed565b335f9081526020819052604081208054929350849290919061017b90849061040a565b9091555050604080518381526020810183905233917fd209e032bcf7ee1571736b6cca6adaa3c4a9b59c06d396c6180ba49d983b28d0910160405180910390a25050565b335f908152602081905260409020548111156102125760405162461bcd60e51b815260206004820152601260248201527153616c646f20696e737566696369656e746560701b6044820152606401610140565b335f908152602081905260408120805483929061023090849061040a565b90915550506001600160a01b0382165f908152602081905260408120805483929061025c90849061041d565b90915550506040518181526001600160a01b0383169033907f1b89874203ff7f0bba87c969ada3f32fda22ed38a6706d35199d21280c7811b19060200160405180910390a35050565b5f34116103025760405162461bcd60e51b815260206004820152602560248201527f4465626520656e76696172204574686572207061726120636f6d7072617220746044820152646f6b656e7360d81b6064820152608401610140565b335f9081526020819052604081208054349283929161032290849061041d565b909155505060405181815233907f8f28852646c20cc973d3a8218f7eefed58c25c909f78f0265af4818c3d4dc2719060200160405180910390a250565b80356001600160a01b0381168114610375575f5ffd5b919050565b5f6020828403121561038a575f5ffd5b6103938261035f565b9392505050565b5f602082840312156103aa575f5ffd5b5035919050565b5f5f604083850312156103c2575f5ffd5b6103cb8361035f565b946020939093013593505050565b634e487b7160e01b5f52601160045260245ffd5b8082028115828204841417610404576104046103d9565b92915050565b81810381811115610404576104046103d9565b80820180821115610404576104046103d956fea2646970667358221220c72b119eef94a22d1775bb3cb9768b264c59a1251761723e442f9b60000704f864736f6c634300081b0033",
+          "linkReferences": {},
+          "from": "account{0}"
+        }
+      }
+    ],
+    "abis": {
+      "0xbf3311589ece246cbe64990a4e71298a99d0a895535d49949164f896e9171e24": [
+        {
+          "inputs": [],
+          "name": "buyTokens",
+          "outputs": [],
+          "stateMutability": "payable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "tokenAmount",
+              "type": "uint256"
+            }
+          ],
+          "name": "exchangeTokensForLempiras",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "user",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "tokens",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "lempiras",
+              "type": "uint256"
+            }
+          ],
+          "name": "TokensExchanged",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "buyer",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "TokensPurchased",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "from",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "TokensTransferred",
+          "type": "event"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "transferTokens",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "stateMutability": "payable",
+          "type": "receive"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "name": "balances",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "exchangeRate",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        }
+      ]
+    }
+  }
