@@ -29,42 +29,113 @@ class InfuraApi {
   }
 
   Future<String> getBalance(String address) async {
-    EtherAmount balance = await _client.getBalance(EthereumAddress.fromHex(address));
-
+    EtherAmount balance =
+        await _client.getBalance(EthereumAddress.fromHex(address));
     BigInt balanceInWei = balance.getInWei;
     return balanceInWei.toString();
   }
 
   Future<String> buyTokens(String privateKey, double amount, String currency) async {
-  final contract = await getContract();
-  final function = contract.function('buyTokens');
+    final contract = await getContract();
 
-  BigInt amountInWei;
-  if (currency == 'USD') {
-    double usdToEtherRate = 0.0006;
-    amountInWei = BigInt.from(amount / usdToEtherRate * 1e18);
-  } else if (currency == 'HNL') {
-    double hnlToEtherRate = 0.000024;
-    amountInWei = BigInt.from(amount / hnlToEtherRate * 1e18);
-  } else {
-    throw Exception('Moneda no soportada');
+    String functionName;
+    BigInt amountToSend;
+
+    if (currency == 'USD') {
+      functionName = 'buyTokensWithUSD';
+      amountToSend = BigInt.from(amount);
+    } else if (currency == 'HNL') {
+      functionName = 'buyTokensWithLempiras';
+      amountToSend = BigInt.from(amount);
+    } else {
+      throw Exception('Moneda no soportada');
+    }
+
+    final function = contract.function(functionName);
+    final credentials = EthPrivateKey.fromHex(privateKey);
+
+    EtherAmount value;
+    List<dynamic> parameters;
+
+    if (currency == 'USD') {
+      value = EtherAmount.fromBigInt(EtherUnit.wei, amountToSend);
+      parameters = [];
+    } else {
+      value = EtherAmount.zero();
+      parameters = [amountToSend];
+    }
+
+    final transactionHash = await _client.sendTransaction(
+      credentials,
+      Transaction.callContract(
+        contract: contract,
+        function: function,
+        parameters: parameters,
+        value: value,
+      ),
+      chainId: 421614,
+    );
+
+    return transactionHash;
   }
 
-  final credentials = EthPrivateKey.fromHex(privateKey);
+  Future<String> transferTokens(String privateKey, String recipientAddress, int tokenAmount) async {
+    final contract = await getContract();
+    final function = contract.function('transferTokens');
 
-  final transactionHash = await _client.sendTransaction(
-    credentials,
-    Transaction.callContract(
-      contract: contract,
-      function: function,
-      parameters: [],
-      value: EtherAmount.inWei(amountInWei),
-    ),
-    chainId: 421614,
-  );
+    final EthereumAddress to = EthereumAddress.fromHex(recipientAddress);
+    final BigInt amount = BigInt.from(tokenAmount);
 
-  return transactionHash; 
-}
+    final credentials = EthPrivateKey.fromHex(privateKey);
 
+    final transactionHash = await _client.sendTransaction(
+      credentials,
+      Transaction.callContract(
+        contract: contract,
+        function: function,
+        parameters: [to, amount],
+      ),
+      chainId: 421614,
+    );
 
+    return transactionHash;
+  }
+
+  Future<String> exchangeTokensForLempiras(String privateKey, BigInt tokenAmount) async {
+    final contract = await getContract();
+    final function = contract.function('exchangeTokensForLempiras');
+
+    final credentials = EthPrivateKey.fromHex(privateKey);
+
+    final transactionHash = await _client.sendTransaction(
+      credentials,
+      Transaction.callContract(
+        contract: contract,
+        function: function,
+        parameters: [tokenAmount],
+      ),
+      chainId: 421614,
+    );
+
+    return transactionHash;
+  }
+
+    Future<String> exchangeTokensForUSD(String privateKey, BigInt tokenAmount) async {
+    final contract = await getContract();
+    final function = contract.function('exchangeTokensForUSD');
+
+    final credentials = EthPrivateKey.fromHex(privateKey);
+
+    final transactionHash = await _client.sendTransaction(
+      credentials,
+      Transaction.callContract(
+        contract: contract,
+        function: function,
+        parameters: [tokenAmount],
+      ),
+      chainId: 421614,
+    );
+
+    return transactionHash;
+  }
 }
