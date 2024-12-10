@@ -40,6 +40,30 @@ class UserApi {
     return null;
   }
 
+  Future<Map<String, dynamic>?> getDir() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getInt('user_id');
+
+      if (userId != null) {
+        final response = await supabase
+            .from('direcciones')
+            .select('*')
+            .eq('user_id', userId)
+            .maybeSingle();
+
+        if (response != null) {
+          return response;
+        }
+      } else {
+        print('Usuario no ha iniciado session.');
+      }
+    } catch (e) {
+      print('Error al obtener el usuario: $e');
+    }
+    return null;
+  }
+
   Future<List<Map<String, dynamic>>?> getTransactionsForUser() async {
     try {
       final prefs = await SharedPreferences.getInstance();

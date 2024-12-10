@@ -82,7 +82,7 @@ class InfuraApi {
       final function = contract.function('checkBalance');
 
       // Llamar a la función del contrato con la dirección Ethereum
-      print('lelga aqui pero no fnca');
+      print('le lga aqui pero no fnca');
       final result = await _client.call(
         contract: contract,
         function: function,

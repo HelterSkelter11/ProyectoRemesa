@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'apis/user_api.dart';
 
 class HistorialScreen extends StatefulWidget {
   final List<Map<String, dynamic>> recentTransactions;
@@ -15,18 +16,37 @@ class _HistorialScreenState extends State<HistorialScreen> {
   DateTime? fechaHasta;
   bool filtrarRecibidos = true;
   bool filtrarEnviados = true;
+  String direccion = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+Future<void> _loadUserData() async {
+    final userApi = UserApi();
+    final userInfo = await userApi.getDir();
+
+    if (userInfo != null) {
+      setState(() {
+        direccion = userInfo['direccion'] ?? 'No Disponible';
+      });
+    }
+  }
+  
 
   List<Map<String, dynamic>> get transaccionesFiltradas {
     List<Map<String, dynamic>> filtradas = widget.recentTransactions;
 
     if (!filtrarRecibidos) {
       filtradas = filtradas
-          .where((t) => t['transaccion']['tipo'] != 'recibido')
+          .where((t) => t['direccion_entrada'] != direccion)
           .toList();
     }
     if (!filtrarEnviados) {
       filtradas = filtradas
-          .where((t) => t['transaccion']['tipo'] != 'enviado')
+          .where((t) => t['direccion_salida'] != direccion)
           .toList();
     }
 
