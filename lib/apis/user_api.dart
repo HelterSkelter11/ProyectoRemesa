@@ -142,7 +142,7 @@ class UserApi {
 
             final token = currency == 'USD' ? monto : monto / 25;
 
-            //final transferHash = infuraApi.transferTokens(privateKey, direccionDestino, BigInt.from(token));
+            final transferHash = infuraApi.transferTokens(privateKey, direccionDestino, BigInt.from(token));
             print('llego si');
 
             //crea la transaccion
