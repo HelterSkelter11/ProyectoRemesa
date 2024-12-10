@@ -126,8 +126,8 @@ class UserApi {
             throw Exception('Saldo insuficiente');
           }
 
-          final token = monto/24;
-          final transactionHash = await infuraApi.transferTokens(privateKey, direccionDestino, token.toInt());
+          //final token = monto/24;
+          //final transactionHash = await infuraApi.transferTokens(privateKey, direccionDestino, token.toInt());
 
           //crea la transaccion
           final response = await supabase.from('transaccion').insert({

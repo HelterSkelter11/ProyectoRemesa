@@ -14,12 +14,14 @@ class RegisterScreen extends StatelessWidget {
     final emailController = TextEditingController();
     final passwordController = TextEditingController();
     final confirmPasswordController = TextEditingController();
+    final DireccionController = TextEditingController();
 
     Future<void> registerUser() async {
       final username = usernameController.text.trim();
       final email = emailController.text.trim();
       final password = passwordController.text.trim();
       final confirmPassword = confirmPasswordController.text.trim();
+      final direccion = DireccionController.text.trim();
 
       if (password != confirmPassword) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -37,13 +39,18 @@ class RegisterScreen extends StatelessWidget {
           'email': email,
           'password': hashedPassword,
           'balance': 0,
-        }).select();
+        }).select('user_id');
 
         if (response.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('No se pudo crear el usuario')),
           );
         } else {
+          final createDir = await supabase.from('direcciones').insert({
+            'user_id': toInt(response[0]),
+            'direccion': direccion,
+          }).select();
+
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Usuario creado con éxito')),
           );
